@@ -1,0 +1,8 @@
+.vscode
+!.gitignore
+**/.ipynb_checkpoints/*
+**/common-lisp-jupyter/*
+jupyter_xprahtml5_proxy/
+README.md
+docker-compose.yml
+```

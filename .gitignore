@@ -1,3 +1,9 @@
+# Ignore everything in this directory
+**/.ipynb_checkpoints/*
+!.gitignore
+.vscode
+backup
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

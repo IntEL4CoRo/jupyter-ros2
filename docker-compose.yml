@@ -1,0 +1,31 @@
+version: '3'
+services:
+  jupyter-ros2:
+    image: intel4coro/jupyter-ros2:humble-py3.10
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    stdin_open: true
+    tty: true
+    ports: 
+      - 8888:8888
+      - 11311:11311
+    privileged: true
+    # user: root
+    user: jovyan
+    working_dir: /home/jovyan
+    command: jupyter lab --allow-root --NotebookApp.token='' --no-browser --ip=0.0.0.0
+    entrypoint: ["/home/jovyan/work/entrypoint.sh"]
+    volumes:
+      - ./:/home/jovyan/work
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    environment:
+      - DISPLAY
+      - NVIDIA_DRIVER_CAPABILITIES=all
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
