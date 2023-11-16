@@ -111,6 +111,17 @@ RUN apt install -y \
 USER ${NB_USER}
 RUN pip install --upgrade "jupyterlab<4" jupyterlab-git
 
+
+# Quickly install missing packages
+USER root
+RUN apt install -y \
+    ros-${ROS_DISTRO}-urdf-launch \
+    ros-${ROS_DISTRO}-urdf-tutorial \
+    ros-${ROS_DISTRO}-turtle-tf2-py \
+    ros-${ROS_DISTRO}-tf2-tools \
+    ros-${ROS_DISTRO}-tf-transformations
+
+USER ${NB_USER}
 WORKDIR /home/${NB_USER}
 # --- Appy JupyterLab custom Settings --- #
 COPY --chown=${NB_USER}:users ./jupyter-settings.json /opt/conda/share/jupyter/lab/settings/overrides.json
