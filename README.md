@@ -1,38 +1,39 @@
-# ROS2 Humble in JupyterLab docker image
+# ROS2 in JupyterLab docker image
 
 [![](https://img.shields.io/docker/v/intel4coro/jupyter-ros2.svg)](https://hub.docker.com/r/intel4coro/jupyter-ros2/tags)
 [![Binder](https://binder.intel4coro.de/badge_logo.svg)](https://binder.intel4coro.de/v2/gh/IntEL4CoRo/jupyter-ros2.git/HEAD)
 
-This is a template repository to build ROS2 docker image capable to run on BinderHub. To install a different distribution of ROS2, change the variable `$ROS_DISTRO` in [Dockerfile](./Dockerfile) to another [ROS distribution](https://docs.ros.org/en/humble/Releases.html).
+This is a template repository to build ROS2 applications capable to run on BinderHub/Docker. The default installed distribution is [Humble Hawksbill](https://docs.ros.org/en/humble/index.html), which is a long-term support (LTS) release that will be supported until May 2027. To install a newer or development [distribution](https://docs.ros.org/en/humble/Releases.html), change the variable `$ROS_DISTRO` in [Dockerfile](./Dockerfile).
 
-Image `intel4coro/jupyter-ros2:humble-py3.10` is a ready-to-run image built on top of jupyter image [jupyter/minimal-notebook:python-3.10](https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-minimal-notebook) , contains the following main softwares:
+You can use this repository to do following (and more):
 
-- [ros-humble-desktop](https://docs.ros.org/en/humble/index.html): Desktop install of ROS2 humble with RViz, demos, tutorials.
-- [Jupyterlab](https://github.com/jupyterlab/jupyterlab): Web-based integrated development environment (IDE)
-- [XPRA Remote Desktop](https://github.com/Xpra-org/xpra): Virtual Display to project native GUI applications on web browser.
-- [Webots ROS2 Interface](https://github.com/cyberbotics/webots_ros2): Package that provides the necessary interfaces to simulate a robot in the [Webots](https://cyberbotics.com/) Open-source 3D robots simulator.
-- [Gazebo Classic](http://classic.gazebosim.org/): Classic Robotic Simulator
-
-![screenshot-ros](./screenshots/screenshot.png)
+- Learn the [ROS2 tutorials](https://docs.ros.org/en/humble/Tutorials.html) without installing anything.
+- Quickly start a ROS2 environment in a local Docker container regardless of your operating system.
+- Starting to migrate projects from ROS1 to ROS2.
+- Create live demos for your ROS2 applications.
 
 ## Quick Start
 
-### Option1: On BinderHub
+### Get started with ROS2 tutorials
 
-An easy way to start the [ROS2 Humble tutorials](https://docs.ros.org/en/humble/Tutorials.html) is via our Binderhub services: [![Binder](https://binder.intel4coro.de/badge_logo.svg)](https://binder.intel4coro.de/v2/gh/IntEL4CoRo/jupyter-ros2.git/HEAD)
+- Try [ROS2 Humble tutorials](https://docs.ros.org/en/humble/Tutorials.html) by simply clicking here: [![Binder](https://binder.intel4coro.de/badge_logo.svg)](https://binder.intel4coro.de/v2/gh/IntEL4CoRo/jupyter-ros2.git/HEAD)
 
-Most of the installation steps in the tutorials can be skipped.
+- Start the "Xpra Desktop" in the JupyterLab Launcher to initiate the virtual display before you run GUI applications.
+- Open new launchers tab to start terminals.
+- Arrange tabs by dragging.
+- Most of the installation steps in the tutorials can be skipped.
 
->Note: Please start the "Xpra Desktop" in the JupyterLab Launcher to initiate the virtual display before you run GUI applications.
+![screenshot-tutlesim](./screenshots/screenshot.png)
 
-### Option2: On Local Machine
+### Start a ROS2 environment locally
 
-The docker image can also run on your local machines when you need to connected to real robots and run intensive robot simulators.
+To connect to real robots or run computate intense robot simulators, you need to run docker containter on your local machine.
+A ready-to-run docker image `intel4coro/jupyter-ros2:humble-py3.10` is pushed to [DockerHub](https://hub.docker.com/r/intel4coro/jupyter-ros2/tags).
 
 #### Prerequisites
 
 - [Docker Engine](https://docs.docker.com/engine/install/)
-- [Ubuntu](https://releases.ubuntu.com/) (Only tested with Ubuntu 20.04)
+- [Ubuntu](https://releases.ubuntu.com/) (Tested with Ubuntu 20.04)
 - Nvidia Graphic Card and [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html) (Optional but recommended)
 
 #### Start Docker container
@@ -57,9 +58,9 @@ xhost -local:docker
 
 Recommended to start with docker-compose if having many custom configurations Example: [docker-compose.yml](./docker-compose.yml).
 
-## Create ROS2 environment for existing project
+## Create your ROS2 application live demo
 
-You can start a ROS2 project from scratch with this template repository, or build your own ROS2 environment based on this image, all you need is to create a `Dockerfile` under the root path or directory `binder/` in your git repository. Extending the image `intel4coro/jupyter-ros2:humble-py3.10` instead of modifying the it can save a huge amount of time from installing software dependencies.
+You can start a ROS2 project from scratch with this template repository, or create your own ROS2 environment by extending the image `intel4coro/jupyter-ros2:humble-py3.10`, all you need is to create a `Dockerfile` under the root path or directory `binder/` in your git repository. Extending the pre-built image can save a huge amount of time from installing software dependencies.
 
 ### Dockerfile Example
 
@@ -78,24 +79,38 @@ ENV MY_ROS_WS=/home/${NB_USER}/my-ros-workspace
 RUN mkdir -p ${MY_ROS_WS}/src
 # Change working directory (similar to command "cd")
 WORKDIR ${MY_ROS_WS}
-# Copy files from git repo to ROS workspace
-COPY --chown=${NB_USER}:users . src/my-repo-name
+# Copy files from your git repo to ROS workspace
+COPY --chown=${NB_USER}:users src src/my-repo-name
 # Install ROS packages dependencies
 RUN rosdep install -i --from-path src --rosdistro ${ROS_DISTRO} -y
 # Build ROS workspace
 RUN colcon build
+# Source ROS workspace in new bash terminals
+RUN echo "source ${MY_ROS_WS}/install/setup.bash" >> /home/${NB_USER}/.bashrc
 
-# Override the entrypoint to add startup scripts, (e.g., source your ROS workspace)
+# Override the entrypoint to add startup scripts
 # Note: Do not forget to add `exec "$@"` at the end of your entrypoint.
 COPY --chown=${NB_USER}:users entrypoint.sh /
 ENTRYPOINT ["/entrypoint.sh"]
 ```
 
+## Software components
+
+- [ros-humble-desktop](https://docs.ros.org/en/humble/index.html): Desktop install of ROS2 humble with RViz, demos, tutorials.
+- [Jupyterlab](https://github.com/jupyterlab/jupyterlab): Web-based integrated development environment (IDE)
+- [XPRA Remote Desktop](https://github.com/Xpra-org/xpra): Virtual Display to project native GUI applications on web browser.
+- [Webots ROS2 Interface](https://github.com/cyberbotics/webots_ros2): Package that provides the necessary interfaces to simulate a robot in the [Webots](https://cyberbotics.com/) Open-source 3D robots simulator.
+- [Gazebo Classic](http://classic.gazebosim.org/): Classic Robotic Simulator
+
 ## Development
 
-The config of running the docker image on your machine locally is specify in [docker-compose.yml](./docker-compose.yml).
+Update the [Dockerfile](./Dockerfile) to make further changes to the docker image, for example, changing the ROS distribution or removing packages that you don't need. The config of running the docker image on your machine locally is specify in [docker-compose.yml](./docker-compose.yml).
 
-> Note: The configs in [docker-compose.yml](./docker-compose.yml) will not take effect in the Binderhub.
+### Checkout git submodules
+
+```bash
+git submodule update --init
+```
 
 ### Run Image Locally (Under repo directory)
 
@@ -142,9 +157,11 @@ xhost -local:docker
 
 ## Simulators
 
+[Webots](https://cyberbotics.com/) and [Gazebo](https://gazebosim.org/home) are two advanced robot simulators mentioned in the ROS2 tutorials.
+
 ### Webots
 
-> Note: Webots is super performance intensive, better to run it with GPU enabled.
+> Note: Webots is super graphically demanding simulator, better running it with GPU enabled.
 
 - Launch Multirobot Example:
 
@@ -160,12 +177,12 @@ See [Webots - ROS2 documenation](https://docs.ros.org/en/humble/Tutorials/Advanc
 
 ### Gazebo classic
 
->Note: Gazebo classic doesn't work on our BinderHub server, will try new Gazebo releases in the future.
+>Note: Gazebo classic doesn't work on our BinderHub instances, will try new Gazebo releases in the future.
 
-Copy demos to directory `gazebo_worlds_demo`
+Copy Gazebo world demos to directory `gazebo_worlds_demo`
 
 ```base
-cp -R /opt/ros/${ROS_DISTRO}/share/gazebo_plugins/worlds /home/jovyan/gazebo_worlds_demo
+cp -R /opt/ros/${ROS_DISTRO}/share/gazebo_plugins/worlds /home/${NB_USER}/gazebo_worlds_demo
 ```
 
 Explaination of these demos can be found at the beginning of the `*.world` files.
