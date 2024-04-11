@@ -5,7 +5,6 @@ ENV ROS_DISTRO=humble
 ARG ROS_PKG=desktop
 LABEL version="ROS-${ROS_DISTRO}-${ROS_PKG}"
 
-ENV DISPLAY=:100
 ENV ROS_PATH=/opt/ros/${ROS_DISTRO}
 ENV ROS_ROOT=${ROS_PATH}/share/ros
 
@@ -52,31 +51,56 @@ RUN apt update && \
     echo "source ${ROS_PATH}/setup.bash" >> /root/.bashrc && \
     echo "source ${ROS_PATH}/setup.bash" >> /home/${NB_USER}/.bashrc
 
-# --- Install XPRA and GUI tools --- #
-ARG REPOFILE=https://raw.githubusercontent.com/Xpra-org/xpra/master/packaging/repos/jammy/xpra.sources
-RUN wget -O "/usr/share/keyrings/xpra.asc" https://xpra.org/xpra.asc && \
-    cd /etc/apt/sources.list.d && wget $REPOFILE
-RUN apt update && apt install -y \
-        xpra \
-        gdm3 \
-        tmux \
-        nautilus \
+# --- Install VNC server and XFCE desktop environment --- #
+USER root
+RUN apt-get -y -qq update \
+ && apt-get -y -qq install \
+        dbus-x11 \
+        firefox \
+        xfce4 \
+        xfce4-panel \
+        xfce4-session \
+        xfce4-settings \
+        xorg \
         gnome-shell \
         gnome-session \
         gnome-terminal \
-        libqt5x11extras5 \
-        xvfb && \
-    apt clean
+        xubuntu-icon-theme \
+        fonts-dejavu \
+    # Disable the automatic screenlock since the account password is unknown
+ && apt-get -y -qq remove xfce4-screensaver \
+    # chown $HOME to workaround that the xorg installation creates a
+    # /home/jovyan/.cache directory owned by root
+    # Create /opt/install to ensure it's writable by pip
+ && mkdir -p /opt/install \
+ && chown -R $NB_UID:$NB_GID $HOME /opt/install \
+ && rm -rf /var/lib/apt/lists/*
+
+# Install a VNC server, either TigerVNC (default) or TurboVNC
+ENV PATH=/opt/TurboVNC/bin:$PATH
+RUN echo "Installing TurboVNC"; \
+    # Install instructions from https://turbovnc.org/Downloads/YUM
+    wget -q -O- https://packagecloud.io/dcommander/turbovnc/gpgkey | \
+    gpg --dearmor >/etc/apt/trusted.gpg.d/TurboVNC.gpg; \
+    wget -O /etc/apt/sources.list.d/TurboVNC.list https://raw.githubusercontent.com/TurboVNC/repo/main/TurboVNC.list; \
+    apt-get -y -qq update; \
+    apt-get -y -qq install \
+        turbovnc \
+    ; \
+    rm -rf /var/lib/apt/lists/*;
+
+USER $NB_USER
+RUN conda install -y websockify
+RUN pip install jupyter-remote-desktop-proxy
+ENV DISPLAY=:1
 
 # --- Install python packages --- #
 USER ${NB_USER}
 RUN pip install --upgrade \
-        jupyterlab==3.6.6 \
+        jupyterlab~=3.6.6 \
         ipywidgets \
         jupyter-resource-usage \
         jupyter-server-proxy \
-        jupyter-ai \
-        openai \
         Pillow \
         rosdep \
         lark \
@@ -84,16 +108,14 @@ RUN pip install --upgrade \
         colcon-common-extensions \
     && pip cache purge
 
+RUN echo "colcon build --parallel-workers 2"
+
 # --- rosdep init --- #
 USER root
 RUN rosdep init && \
     rosdep update && \
     rosdep fix-permissions
 USER ${NB_USER}
-
-# --- Install jupyterlab extensions --- #
-COPY --chown=${NB_USER}:users jupyter-extensions /home/${NB_USER}/.jupyter-extensions
-RUN pip install -e /home/${NB_USER}/.jupyter-extensions/jupyter-xprahtml5-proxy
 
 # --- Install Webots_ros2 --- #
 USER root
@@ -112,7 +134,7 @@ USER ${NB_USER}
 RUN pip install --upgrade "jupyterlab<4" jupyterlab-git
 
 
-# Quickly install missing packages
+# install missing packages
 USER root
 RUN apt install -y \
     ros-${ROS_DISTRO}-urdf-launch \
