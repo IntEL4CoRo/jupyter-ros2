@@ -18,7 +18,7 @@ You can use this repository to do following (and more):
 
 - Try [ROS2 Humble tutorials](https://docs.ros.org/en/humble/Tutorials.html) by simply clicking here: [![Binder](https://binder.intel4coro.de/badge_logo.svg)](https://binder.intel4coro.de/v2/gh/IntEL4CoRo/jupyter-ros2.git/HEAD)
 
-- Start the "Xpra Desktop" in the JupyterLab Launcher to initiate the virtual display before you run GUI applications.
+- Start the "VNC Desktop" in the JupyterLab Launcher to initiate the virtual display before you run GUI applications.
 - Open new launchers tab to start terminals.
 - Arrange tabs by dragging.
 - Most of the installation steps in the tutorials can be skipped.
@@ -98,7 +98,7 @@ ENTRYPOINT ["/entrypoint.sh"]
 
 - [ros-humble-desktop](https://docs.ros.org/en/humble/index.html): Desktop install of ROS2 humble with RViz, demos, tutorials.
 - [Jupyterlab](https://github.com/jupyterlab/jupyterlab): Web-based integrated development environment (IDE)
-- [XPRA Remote Desktop](https://github.com/Xpra-org/xpra): Virtual Display to project native GUI applications on web browser.
+- [VNC Remote Desktop](https://github.com/jupyterhub/jupyter-remote-desktop-proxy): Run XFCE (or other desktop environments) on Jupyter.
 - [Webots ROS2 Interface](https://github.com/cyberbotics/webots_ros2): Package that provides the necessary interfaces to simulate a robot in the [Webots](https://cyberbotics.com/) Open-source 3D robots simulator.
 - [Gazebo Classic](http://classic.gazebosim.org/): Classic Robotic Simulator
 
@@ -130,7 +130,7 @@ git submodule update --init
 
 #### Enable nvidia GPU and display GUI applications on host machine
 
-To display GUI applications on your host machine instead of a Xpra virtual display.
+To display GUI applications on your host machine instead of a virtual display.
 Uncomment the following configs in [docker-compose.yml](./docker-compose.yml)
 
 ```docker-compose
