@@ -9,7 +9,6 @@ services:
     tty: true
     ports: 
       - 8888:8888
-      - 11311:11311
     privileged: true
     # user: root
     user: jovyan

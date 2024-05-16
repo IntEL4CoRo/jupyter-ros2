@@ -16,14 +16,13 @@ You can use this repository to do following (and more):
 
 ### Get started with ROS2 tutorials
 
-- Try [ROS2 Humble tutorials](https://docs.ros.org/en/humble/Tutorials.html) by simply clicking here: [![Binder](https://binder.intel4coro.de/badge_logo.svg)](https://binder.intel4coro.de/v2/gh/IntEL4CoRo/jupyter-ros2.git/HEAD)
+- Try [ROS2 Humble tutorials](https://docs.ros.org/en/humble/Tutorials.html) on BinderHub: [![Binder](https://binder.intel4coro.de/badge_logo.svg)](https://binder.intel4coro.de/v2/gh/IntEL4CoRo/jupyter-ros2/HEAD?labpath=tutorials%2F0_Turtlesim.ipynb)
 
 - Start the "VNC Desktop" in the JupyterLab Launcher to initiate the virtual display before you run GUI applications.
 - Open new launchers tab to start terminals.
 - Arrange tabs by dragging.
 - Most of the installation steps in the tutorials can be skipped.
 
-![screenshot-tutlesim](./screenshots/screenshot.png)
 
 ### Start a ROS2 environment locally
 
