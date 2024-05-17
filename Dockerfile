@@ -150,7 +150,6 @@ RUN apt-get install wget gpg && \
 USER ${NB_USER}
 RUN pip install bash_kernel
 RUN python -m bash_kernel.install
-RUN pip install https://raw.githubusercontent.com/yxzhan/extension-examples/main/cell-toolbar/dist/jupyterlab_examples_cell_toolbar-0.1.4.tar.gz
 
 # --- Copy notebooks --- #
 USER ${NB_USER}
