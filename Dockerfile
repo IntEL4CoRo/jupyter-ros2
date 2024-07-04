@@ -28,21 +28,21 @@ ENV TURTLEBOT3_MODEL=waffle_pi
 # Create ROS workspaces
 USER ${NB_USER}
 
-# RUN mkdir -p ${ROS_WS}/src
-# WORKDIR ${ROS_WS}
-# RUN cd src && \
-#     git clone -b ${ROS_DISTRO}-devel https://github.com/ROBOTIS-GIT/turtlebot3_simulations.git 
+RUN mkdir -p ${ROS_WS}/src
+WORKDIR ${ROS_WS}
+RUN cd src && \
+    git clone -b ${ROS_DISTRO}-devel https://github.com/ROBOTIS-GIT/turtlebot3_simulations.git 
 
-# USER root
-# RUN rosdep update && \
-#     rosdep install --from-paths src --ignore-src  -y && \
-#     rosdep fix-permissions
+USER root
+RUN rosdep update && \
+    rosdep install --from-paths src --ignore-src  -y && \
+    rosdep fix-permissions
 
-# USER ${NB_USER}
-# RUN source /opt/ros/${ROS_DISTRO}/setup.bash && \
-#     colcon build --symlink-install --parallel-workers 2
-# RUN echo "source ${ROS_WS}/install/setup.bash" >> /home/${NB_USER}/.bashrc
+USER ${NB_USER}
+RUN source /opt/ros/${ROS_DISTRO}/setup.bash && \
+    colcon build --symlink-install --parallel-workers 2
+RUN echo "source ${ROS_WS}/install/setup.bash" >> /home/${NB_USER}/.bashrc
 
-COPY --chown=${NB_USER}:users . /home/${NB_USER}/jupyter-ros2
-WORKDIR /home/${NB_USER}/jupyter-ros2
-# RUN ln -s ${ROS_WS} ROS_WS
+COPY --chown=${NB_USER}:users . /home/${NB_USER}/work
+WORKDIR /home/${NB_USER}/work
+RUN ln -s ${ROS_WS} ROS_WS
