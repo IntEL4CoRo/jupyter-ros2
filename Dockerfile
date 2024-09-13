@@ -1,7 +1,7 @@
-FROM jupyter/minimal-notebook:python-3.10
+FROM quay.io/jupyter/minimal-notebook:ubuntu-24.04
 
 # --- Define Environment Variables--- #
-ENV ROS_DISTRO=humble
+ENV ROS_DISTRO=jazzy
 ARG ROS_PKG=desktop
 LABEL version="ROS-${ROS_DISTRO}-${ROS_PKG}"
 
@@ -14,10 +14,9 @@ RUN  apt update -q && apt install -y \
         software-properties-common \
         gnupg2 \
         curl \
-        git \
         wget \
         vim \
-        nano \
+        byobu \
         net-tools\
         ca-certificates \
         apt-transport-https \
@@ -46,8 +45,7 @@ RUN apt update && \
     apt upgrade -y && \
     apt install -y \
         ros-dev-tools \
-        ros-${ROS_DISTRO}-${ROS_PKG} \
-        ros-${ROS_DISTRO}-gazebo-ros-pkgs && \
+        ros-${ROS_DISTRO}-${ROS_PKG} && \
     apt clean && \
     echo "source ${ROS_PATH}/setup.bash" >> /root/.bashrc && \
     echo "source ${ROS_PATH}/setup.bash" >> /home/${NB_USER}/.bashrc
@@ -61,17 +59,23 @@ RUN rosdep init && \
 USER root
 RUN apt-get update && \
     apt-get install -y \
-    ros-${ROS_DISTRO}-webots-ros2 \
+    ros-${ROS_DISTRO}-gazebo-* \
+    ros-${ROS_DISTRO}-cartographer \
+    ros-${ROS_DISTRO}-navigation2 \
+    ros-${ROS_DISTRO}-dynamixel-sdk \
+    ros-${ROS_DISTRO}-turtlebot3* \
     ros-${ROS_DISTRO}-moveit \
     ros-${ROS_DISTRO}-nav2-bringup \
     ros-${ROS_DISTRO}-slam-toolbox \
-    ros-${ROS_DISTRO}-tiago-bringup \
-    ros-${ROS_DISTRO}-cartographer-ros \
     ros-${ROS_DISTRO}-urdf-launch \
     ros-${ROS_DISTRO}-urdf-tutorial \
     ros-${ROS_DISTRO}-turtle-tf2-py \
     ros-${ROS_DISTRO}-tf2-tools \
     ros-${ROS_DISTRO}-tf-transformations
+
+# Source the gazebo setup.bash to set up the envrionment variables
+ENV GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:/opt/ros/${ROS_DISTRO}/share/turtlebot3_gazebo/models
+ENV TURTLEBOT3_MODEL=waffle_pi
 
 # --- Install VNC server and XFCE desktop environment --- #
 USER root
@@ -115,7 +119,6 @@ RUN echo "Installing TurboVNC"; \
 # Install VNC jupyterlab extension
 USER $NB_USER
 RUN mamba install -y websockify
-RUN pip install git+https://github.com/yxzhan/jupyter-remote-desktop-proxy.git@main
 ENV DISPLAY=:1
 
 # --- Install python packages --- #
@@ -126,6 +129,7 @@ RUN pip install --upgrade \
         jupyter-resource-usage \
         jupyter-server-proxy \
         jupyterlab-git \
+        jupyter-remote-desktop-proxy\
         jupyter_offlinenotebook \
         Pillow \
         rosdep \
@@ -134,22 +138,7 @@ RUN pip install --upgrade \
         catkin_tools \
         colcon-common-extensions \
     && pip cache purge
-
-# --- Install VScode --- #
-USER root
-RUN apt-get install wget gpg && \
-    wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > packages.microsoft.gpg && \
-    install -D -o root -g root -m 644 packages.microsoft.gpg /etc/apt/keyrings/packages.microsoft.gpg && \
-    echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" |sudo tee /etc/apt/sources.list.d/vscode.list > /dev/null && \
-    rm -f packages.microsoft.gpg && \
-    apt install apt-transport-https && \
-    apt update && \
-    apt install code
-
-# --- Install bash kernel --- #
-USER ${NB_USER}
-RUN pip install bash_kernel
-RUN python -m bash_kernel.install
+RUN pip install https://raw.githubusercontent.com/yxzhan/extension-examples/main/cell-toolbar/dist/jupyterlab_examples_cell_toolbar-0.1.4.tar.gz
 
 # --- Copy notebooks --- #
 USER ${NB_USER}
