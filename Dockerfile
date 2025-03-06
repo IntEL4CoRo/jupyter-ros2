@@ -32,7 +32,19 @@ USER root
 RUN apt update && apt install -y libfuse2
 
 USER ${NB_USER}
+WORKDIR /home/${NB_USER}/work/tutorials
 RUN wget https://download.isaacsim.omniverse.nvidia.com/isaacsim-webrtc-streaming-client-1.0.6-linux-x64.AppImage -O isaac-sim.AppImage && \
-    chmod +x isaac-sim.AppImage
+    chmod +x isaac-sim.AppImage && \
+    ./isaac-sim.AppImage --appimage-extract && \
+    mv squashfs-root isaac-sim
 
 ENV OMNI_KIT_ACCEPT_EULA=YES
+
+# --- Copy notebooks --- #
+USER ${NB_USER}
+COPY --chown=${NB_USER}:users ./ /home/${NB_USER}/work/
+
+# --- Entrypoint --- #
+COPY --chown=${NB_USER}:users entrypoint.sh /
+ENTRYPOINT ["/entrypoint.sh"]
+CMD [ "start-notebook.sh" ]
