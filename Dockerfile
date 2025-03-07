@@ -40,6 +40,11 @@ RUN wget https://download.isaacsim.omniverse.nvidia.com/isaacsim-webrtc-streamin
 
 ENV OMNI_KIT_ACCEPT_EULA=YES
 
+# Download shaders cache to speed up the first launch (Hardware dependent)
+RUN wget https://ivan.informatik.uni-bremen.de/data/ov-cache.tar.gz && \
+    tar -xvf ov-cache.tar.gz -C /home/${NB_USER}/.cache/ && \
+    rm ov-cache.tar.gz
+
 # --- Copy notebooks --- #
 USER ${NB_USER}
 COPY --chown=${NB_USER}:users ./ /home/${NB_USER}/work/
