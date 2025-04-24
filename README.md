@@ -3,7 +3,7 @@
 [![](https://img.shields.io/docker/v/intel4coro/jupyter-ros2.svg)](https://hub.docker.com/r/intel4coro/jupyter-ros2/tags)
 [![Binder](https://binder.intel4coro.de/badge_logo.svg)](https://binder.intel4coro.de/v2/gh/IntEL4CoRo/jupyter-ros2.git/HEAD)
 
-This is a template repository to build ROS2 applications capable to run on BinderHub/Docker. The default installed distribution is [jazzy Hawksbill](https://docs.ros.org/en/jazzy/index.html), which is a long-term support (LTS) release that will be supported until May 2027. To install a newer or development [distribution](https://docs.ros.org/en/jazzy/Releases.html), change the variable `$ROS_DISTRO` in [Dockerfile](./Dockerfile).
+This is a template repository to build ROS2 applications capable to run on BinderHub/Docker. The default installed distribution is [jazzy Hawksbill](https://docs.ros.org/en/jazzy/index.html), which is a long-term support (LTS) release that will be supported until May 2029. To install a newer or development [distribution](https://docs.ros.org/en/jazzy/Releases.html), change the variable `$ROS_DISTRO` in [Dockerfile](./Dockerfile).
 
 You can use this repository to do following (and more):
 
@@ -26,8 +26,8 @@ You can use this repository to do following (and more):
 
 ### Start a ROS2 environment locally
 
-To connect to real robots or run computate intense robot simulators, you need to run docker containter on your local machine.
-A ready-to-run docker image `intel4coro/jupyter-ros2:jazzy-py3.11` is pushed to [DockerHub](https://hub.docker.com/r/intel4coro/jupyter-ros2/tags).
+To connect to real robots or run computate intense robot simulators, you need to run docker container on your local machine.
+A ready-to-run docker image `intel4coro/jupyter-ros2:jazzy-py3.12` is pushed to [DockerHub](https://hub.docker.com/r/intel4coro/jupyter-ros2/tags).
 
 #### Prerequisites
 
@@ -38,7 +38,7 @@ A ready-to-run docker image `intel4coro/jupyter-ros2:jazzy-py3.11` is pushed to 
 #### Start Docker container
 
 ```bash
-docker run --rm -p 8888:8888 intel4coro/jupyter-ros2:jazzy-py3.11 jupyter lab --NotebookApp.token=''
+docker run --rm -p 8888:8888 intel4coro/jupyter-ros2:jazzy-py3.12 jupyter lab --NotebookApp.token=''
 ```
 
 Open url http://localhost:8888/
@@ -51,7 +51,7 @@ docker run --rm -p 8888:8888 \
 -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
 --env DISPLAY=$DISPLAY \
 --env NVIDIA_DRIVER_CAPABILITIES=all \
---gpus all intel4coro/jupyter-ros2:jazzy-py3.11 && \
+--gpus all intel4coro/jupyter-ros2:jazzy-py3.12 && \
 xhost -local:docker
 ```
 
@@ -59,12 +59,12 @@ Recommended to start with docker-compose if having many custom configurations Ex
 
 ## Create your ROS2 application live demo
 
-You can start a ROS2 project from scratch with this template repository, or create your own ROS2 environment by extending the image `intel4coro/jupyter-ros2:jazzy-py3.11`, all you need is to create a `Dockerfile` under the root path or directory `binder/` in your git repository. Extending the pre-built image can save a huge amount of time from installing software dependencies.
+You can start a ROS2 project from scratch with this template repository, or create your own ROS2 environment by extending the image `intel4coro/jupyter-ros2:jazzy-py3.12`, all you need is to create a `Dockerfile` under the root path or directory `binder/` in your git repository. Extending the pre-built image can save a huge amount of time from installing software dependencies.
 
 ### Dockerfile Example
 
 ```Dockerfile
-FROM intel4coro/jupyter-ros2:jazzy-py3.11
+FROM intel4coro/jupyter-ros2:jazzy-py3.12
 
 # Run bash commands required root permission
 USER root
@@ -83,7 +83,7 @@ COPY --chown=${NB_USER}:users src src/my-repo-name
 # Install ROS packages dependencies
 RUN rosdep install -i --from-path src --rosdistro ${ROS_DISTRO} -y
 # Build ROS workspace
-RUN colcon build
+RUN colcon build --parallel-workers 4
 # Source ROS workspace in new bash terminals
 RUN echo "source ${MY_ROS_WS}/install/setup.bash" >> /home/${NB_USER}/.bashrc
 
@@ -99,7 +99,7 @@ ENTRYPOINT ["/entrypoint.sh"]
 - [Jupyterlab](https://github.com/jupyterlab/jupyterlab): Web-based integrated development environment (IDE)
 - [VNC Remote Desktop](https://github.com/jupyterhub/jupyter-remote-desktop-proxy): Run XFCE (or other desktop environments) on Jupyter.
 - [Webots ROS2 Interface](https://github.com/cyberbotics/webots_ros2): Package that provides the necessary interfaces to simulate a robot in the [Webots](https://cyberbotics.com/) Open-source 3D robots simulator.
-- [Gazebo Classic](http://classic.gazebosim.org/): Classic Robotic Simulator
+- ~~[Gazebo Classic](http://classic.gazebosim.org/): Classic Robotic Simulator~~
 
 ## Development
 
@@ -174,9 +174,9 @@ xhost -local:docker
 
 See [Webots - ROS2 documenation](https://docs.ros.org/en/jazzy/Tutorials/Advanced/Simulators/Webots/Setting-Up-Simulation-Webots-Basic.html) for more details and github repo [cyberbotics/webots_ros2](https://github.com/cyberbotics/webots_ros2/wiki/Examples) for more examples.
 
-### Gazebo classic
+<!-- ### Gazebo classic
 
->Note: Gazebo classic doesn't work on our BinderHub instances, will try new Gazebo releases in the future.
+>Note: Gazebo classic no longer available on `ROS2 jazzy`.
 
 Copy Gazebo world demos to directory `gazebo_worlds_demo`
 
@@ -192,7 +192,7 @@ Open a new terminal under directory `gazebo_worlds_demo` and launch demos:
 gazebo --verbose gazebo_ros_joint_pose_trajectory_demo.world
 ```
 
-![screenshot-gazebo](./screenshots/screenshot-gazebo.png)
+![screenshot-gazebo](./screenshots/screenshot-gazebo.png) -->
 
 ## Troubleshooting
 
@@ -202,7 +202,7 @@ gazebo --verbose gazebo_ros_joint_pose_trajectory_demo.world
 
 ## License
 
-Copyright 2023 IntEL4CoRo\<intel4coro@uni-bremen.de\>
+Copyright 2023 IntEL4CoRo\<forcoro@uni-bremen.de\>
 
 This repository is released under the Apache License 2.0, see [LICENSE](./LICENSE).  
 Unless attributed otherwise, everything in this repository is under the Apache License 2.0.
