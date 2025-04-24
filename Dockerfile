@@ -16,6 +16,7 @@ RUN  apt update -q && apt install -y \
         curl \
         wget \
         vim \
+        git \
         byobu \
         net-tools\
         ca-certificates \
@@ -26,7 +27,7 @@ RUN  apt update -q && apt install -y \
 # --- Install Oh-my-bash --- #
 USER ${NB_USER}
 RUN bash -c "$(curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh)" --unattended
-COPY --chown=${NB_USER}:users ./bashrc.sh /home/${NB_USER}/.bashrc
+# COPY --chown=${NB_USER}:users ./bashrc.sh /home/${NB_USER}/.bashrc
 
 # Set locale
 USER root
@@ -59,23 +60,19 @@ RUN rosdep init && \
 USER root
 RUN apt-get update && \
     apt-get install -y \
-    ros-${ROS_DISTRO}-gazebo-* \
+    # ros-${ROS_DISTRO}-gazebo-* \
     ros-${ROS_DISTRO}-cartographer \
-    ros-${ROS_DISTRO}-navigation2 \
+    # ros-${ROS_DISTRO}-navigation2 \
     ros-${ROS_DISTRO}-dynamixel-sdk \
-    ros-${ROS_DISTRO}-turtlebot3* \
-    ros-${ROS_DISTRO}-moveit \
-    ros-${ROS_DISTRO}-nav2-bringup \
+    # ros-${ROS_DISTRO}-turtlebot3* \
+    # ros-${ROS_DISTRO}-moveit \
+    # ros-${ROS_DISTRO}-nav2-bringup \
     ros-${ROS_DISTRO}-slam-toolbox \
     ros-${ROS_DISTRO}-urdf-launch \
     ros-${ROS_DISTRO}-urdf-tutorial \
     ros-${ROS_DISTRO}-turtle-tf2-py \
     ros-${ROS_DISTRO}-tf2-tools \
     ros-${ROS_DISTRO}-tf-transformations
-
-# Source the gazebo setup.bash to set up the envrionment variables
-ENV GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:/opt/ros/${ROS_DISTRO}/share/turtlebot3_gazebo/models
-ENV TURTLEBOT3_MODEL=waffle_pi
 
 # --- Install VNC server and XFCE desktop environment --- #
 USER root
@@ -124,7 +121,7 @@ ENV DISPLAY=:1
 # --- Install python packages --- #
 USER ${NB_USER}
 RUN pip install --upgrade \
-        jupyterlab~=4.2.0 \
+        jupyterlab~=4.0.0 \
         ipywidgets \
         jupyter-resource-usage \
         jupyter-server-proxy \
@@ -142,7 +139,7 @@ RUN pip install https://raw.githubusercontent.com/yxzhan/extension-examples/main
 
 # --- Copy notebooks --- #
 USER ${NB_USER}
-WORKDIR /home/${NB_USER}/work/tutorials
+WORKDIR /home/${NB_USER}/work
 COPY --chown=${NB_USER}:users ./ /home/${NB_USER}/work/
 
 # --- Entrypoint --- #
