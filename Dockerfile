@@ -7,6 +7,7 @@ LABEL version="ROS-${ROS_DISTRO}-${ROS_PKG}"
 
 ENV ROS_PATH=/opt/ros/${ROS_DISTRO}
 ENV ROS_ROOT=${ROS_PATH}/share/ros
+ENV ROS_WS=${HOME}/ros2_ws
 
 # --- Install basic tools --- #
 USER root
@@ -22,18 +23,11 @@ RUN  apt update -q && apt install -y \
         ca-certificates \
         apt-transport-https \
         build-essential \
+        locales \
         lsb-release
 
-# --- Install Oh-my-bash --- #
-USER ${NB_USER}
-RUN bash -c "$(curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh)" --unattended
-# COPY --chown=${NB_USER}:users ./bashrc.sh /home/${NB_USER}/.bashrc
-
 # Set locale
-USER root
-RUN apt update && \
-    apt install -y locales && \
-    locale-gen en_US en_US.UTF-8 && \
+RUN locale-gen en_US en_US.UTF-8 && \
     update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
 ENV LANG=en_US.UTF-8
 
@@ -60,13 +54,10 @@ RUN rosdep init && \
 USER root
 RUN apt-get update && \
     apt-get install -y \
-    # ros-${ROS_DISTRO}-gazebo-* \
+    ros-${ROS_DISTRO}-gazebo-* \
     ros-${ROS_DISTRO}-cartographer \
-    # ros-${ROS_DISTRO}-navigation2 \
     ros-${ROS_DISTRO}-dynamixel-sdk \
     # ros-${ROS_DISTRO}-turtlebot3* \
-    # ros-${ROS_DISTRO}-moveit \
-    # ros-${ROS_DISTRO}-nav2-bringup \
     ros-${ROS_DISTRO}-slam-toolbox \
     ros-${ROS_DISTRO}-urdf-launch \
     ros-${ROS_DISTRO}-urdf-tutorial \
@@ -79,7 +70,6 @@ USER root
 RUN apt-get -y -qq update \
  && apt-get -y -qq install \
         dbus-x11 \
-        firefox \
         tmux \
         xfce4 \
         xfce4-panel \
@@ -93,12 +83,8 @@ RUN apt-get -y -qq update \
         fonts-dejavu \
     # Disable the automatic screenlock since the account password is unknown
  && apt-get -y -qq remove xfce4-screensaver \
-    # chown $HOME to workaround that the xorg installation creates a
-    # /home/jovyan/.cache directory owned by root
-    # Create /opt/install to ensure it's writable by pip
  && mkdir -p /opt/install \
- && chown -R $NB_UID:$NB_GID $HOME /opt/install \
- && rm -rf /var/lib/apt/lists/*
+ && chown -R $NB_UID:$NB_GID $HOME /opt/install
 
 # Install a VNC server, (TurboVNC)
 ENV PATH=/opt/TurboVNC/bin:$PATH
@@ -114,14 +100,13 @@ RUN echo "Installing TurboVNC"; \
     rm -rf /var/lib/apt/lists/*;
 
 # Install VNC jupyterlab extension
-USER $NB_USER
+USER ${NB_USER}
 RUN mamba install -y websockify
 ENV DISPLAY=:1
 
 # --- Install python packages --- #
 USER ${NB_USER}
 RUN pip install --upgrade \
-        jupyterlab~=4.0.0 \
         ipywidgets \
         jupyter-resource-usage \
         jupyter-server-proxy \
@@ -135,7 +120,13 @@ RUN pip install --upgrade \
         catkin_tools \
         colcon-common-extensions \
     && pip cache purge
-RUN pip install https://raw.githubusercontent.com/yxzhan/extension-examples/main/cell-toolbar/dist/jupyterlab_examples_cell_toolbar-0.1.4.tar.gz
+
+# --- Install gazebo --- #
+USER root
+RUN curl https://packages.osrfoundation.org/gazebo.gpg --output /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg
+RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null
+RUN apt-get update && \
+    apt-get install -y gz-ionic
 
 # --- Copy notebooks --- #
 USER ${NB_USER}

@@ -72,20 +72,26 @@ RUN apt update && apt install nano vim
 USER ${NB_USER}
 
 # Define environment variables
-ENV MY_ROS_WS=/home/${NB_USER}/my-ros-workspace
+ENV ROS_WS=/home/${NB_USER}/my_ros2_ws
 
 # Create your ROS workspace
-RUN mkdir -p ${MY_ROS_WS}/src
+RUN mkdir -p ${ROS_WS}/src
 # Change working directory (similar to command "cd")
-WORKDIR ${MY_ROS_WS}
+WORKDIR ${ROS_WS}
 # Copy files from your git repo to ROS workspace
 COPY --chown=${NB_USER}:users src src/my-repo-name
+
 # Install ROS packages dependencies
-RUN rosdep install -i --from-path src --rosdistro ${ROS_DISTRO} -y
+USER root
+RUN rosdep update && apt update && \
+    rosdep install --from-paths src --ignore-src -r -y && \
+    rosdep fix-permissions
+
 # Build ROS workspace
+USER ${NB_USER}
 RUN colcon build --parallel-workers 4
 # Source ROS workspace in new bash terminals
-RUN echo "source ${MY_ROS_WS}/install/setup.bash" >> /home/${NB_USER}/.bashrc
+RUN echo "source ${ROS_WS}/install/setup.bash" >> /home/${NB_USER}/.bashrc
 
 # Override the entrypoint to add startup scripts
 # Note: Do not forget to add `exec "$@"` at the end of your entrypoint.
