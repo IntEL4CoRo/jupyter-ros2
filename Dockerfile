@@ -128,9 +128,40 @@ RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/p
 RUN apt-get update && \
     apt-get install -y gz-ionic ros-${ROS_DISTRO}-ros-gz
 
+# --- Install VSCode server --- #
+USER root
+RUN export VERSION=4.101.2 && \
+    curl -fOL https://github.com/coder/code-server/releases/download/v$VERSION/code-server_${VERSION}_amd64.deb && \
+    dpkg -i code-server_${VERSION}_amd64.deb && \
+    rm code-server_${VERSION}_amd64.deb
+USER ${NB_USER}
+RUN code-server --install-extension ms-python.python \
+  && code-server --install-extension ms-toolsai.jupyter
+COPY --chown=${NB_USER}:users vscode.svg $HOME/
+WORKDIR /home/${NB_USER}/work
+RUN echo "\
+c.ServerProxy.servers = {\
+    'code': {\
+        'command': ['code-server',\
+                    '--auth=none', \
+                    '--disable-workspace-trust',\
+                    '--ignore-last-opened',\
+                    '$PWD',\
+                    ],\
+        'timeout': 20,\
+        'port': 8080,\
+        'absolute_url': False,\
+        'launcher_entry': {\
+            'title': 'Visual Studio Code',\
+            'icon_path': '$HOME/vscode.svg',\
+        },\
+        'new_browser_tab': True\
+    }\
+}\
+" >> ~/.jupyter/jupyter_notebook_config.py
+
 # --- Copy notebooks --- #
 USER ${NB_USER}
-WORKDIR /home/${NB_USER}/work
 COPY --chown=${NB_USER}:users ./ /home/${NB_USER}/work/
 
 # --- Entrypoint --- #
