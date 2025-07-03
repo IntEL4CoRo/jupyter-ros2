@@ -57,7 +57,7 @@ RUN apt-get update && \
     ros-${ROS_DISTRO}-gazebo-* \
     ros-${ROS_DISTRO}-cartographer \
     ros-${ROS_DISTRO}-dynamixel-sdk \
-    # ros-${ROS_DISTRO}-turtlebot3* \
+    ros-${ROS_DISTRO}-turtlebot3* \
     ros-${ROS_DISTRO}-slam-toolbox \
     ros-${ROS_DISTRO}-urdf-launch \
     ros-${ROS_DISTRO}-urdf-tutorial \
@@ -129,40 +129,18 @@ RUN apt-get update && \
     apt-get install -y gz-ionic ros-${ROS_DISTRO}-ros-gz
 
 # --- Install VSCode server --- #
-USER root
-RUN export VERSION=4.101.2 && \
-    curl -fOL https://github.com/coder/code-server/releases/download/v$VERSION/code-server_${VERSION}_amd64.deb && \
-    dpkg -i code-server_${VERSION}_amd64.deb && \
-    rm code-server_${VERSION}_amd64.deb
 USER ${NB_USER}
+RUN conda install -y conda-forge::code-server
+RUN echo 'alias code="$(which code-server)"' >> ~/.bashrc
 RUN code-server --install-extension ms-python.python \
   && code-server --install-extension ms-toolsai.jupyter
-COPY --chown=${NB_USER}:users vscode.svg $HOME/
-WORKDIR /home/${NB_USER}/work
-RUN echo "\
-c.ServerProxy.servers = {\
-    'code': {\
-        'command': ['code-server',\
-                    '--auth=none', \
-                    '--disable-workspace-trust',\
-                    '--ignore-last-opened',\
-                    '$PWD',\
-                    ],\
-        'timeout': 20,\
-        'port': 8080,\
-        'absolute_url': False,\
-        'launcher_entry': {\
-            'title': 'Visual Studio Code',\
-            'icon_path': '$HOME/vscode.svg',\
-        },\
-        'new_browser_tab': True\
-    }\
-}\
-" >> ~/.jupyter/jupyter_notebook_config.py
+RUN pip install git+https://github.com/yxzhan/jupyter-code-server.git
+ENV CODE_WORKING_DIRECTORY=${HOME}/work
 
 # --- Copy notebooks --- #
 USER ${NB_USER}
-COPY --chown=${NB_USER}:users ./ /home/${NB_USER}/work/
+WORKDIR ${HOME}/work
+COPY --chown=${NB_USER}:users ./ ${HOME}/work
 
 # --- Entrypoint --- #
 COPY --chown=${NB_USER}:users entrypoint.sh /
