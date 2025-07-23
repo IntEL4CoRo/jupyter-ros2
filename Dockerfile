@@ -20,6 +20,14 @@ RUN apt update && apt install -y libfuse2
 
 USER ${NB_USER}
 RUN pip install -U jupyter-remote-desktop-proxy
+# install code-server
+RUN mamba install -y code-server
+RUN echo 'alias code="$(which code-server)"' >> ~/.bashrc
+RUN code-server --install-extension ms-python.python \
+  && code-server --install-extension ms-toolsai.jupyter
+RUN pip install git+https://github.com/yxzhan/jupyter-code-server.git
+ENV CODE_WORKING_DIRECTORY=${HOME}/work
+
 ENV OMNI_KIT_ACCEPT_EULA=YES
 
 # Download shaders cache to speed up the first launch (Hardware dependent)
