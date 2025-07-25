@@ -1,7 +1,7 @@
 version: '3'
 services:
   jupyter-ros2:
-    image: intel4coro/jupyter-ros2:isaac-sim-4.5
+    image: intel4coro/jupyter-ros2:isaac-sim-4.2
     build:
       context: ./
       dockerfile: ./Dockerfile
@@ -16,10 +16,18 @@ services:
     working_dir: /home/jovyan
     command: jupyter lab --allow-root --NotebookApp.token='' --no-browser --ip=0.0.0.0
     # entrypoint: ["/home/jovyan/work/entrypoint.sh"]
-    # volumes:
-      # - ./:/home/jovyan/work
-      # - /usr/share/vulkan/icd.d:/usr/share/vulkan/icd.d 
+    volumes:
+      - ./:/home/jovyan/work
+      # - /usr/share/vulkan/icd.d:/usr/share/vulkan/icd.d
       # - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      # - ./isaacsim-cache/cache/kit:/isaac-sim/kit/cache:rw
+      # - ./isaacsim-cache/cache/ov:/home/jovyan/.cache/ov:rw
+      # - ./isaacsim-cache/cache/pip:/home/jovyan/.cache/pip:rw
+      # - ./isaacsim-cache/cache/glcache:/home/jovyan/.cache/nvidia/GLCache:rw
+      # - ./isaacsim-cache/cache/computecache:/home/jovyan/.nv/ComputeCache:rw
+      # - ./isaacsim-cache/logs:/home/jovyan/.nvidia-omniverse/logs:rw
+      # - ./isaacsim-cache/data:/home/jovyan/.local/share/ov/data:rw
+      # - ./isaacsim-cache/documents:/home/jovyan/Documents:rw
     environment:
       # - DISPLAY
       - NVIDIA_DRIVER_CAPABILITIES=all

@@ -1,0 +1,10 @@
+alias runapp=/isaac-sim/runapp.sh
+alias runheadless.native=/isaac-sim/runheadless.native.sh
+alias runheadless.webrtc=/isaac-sim/runheadless.webrtc.sh
+ISAAC_VER='4.2.0'
+ISAAC_SIM_DIR="/isaac-sim"
+ISAAC_PYTHON_SH="${ISAAC_SIM_DIR}/python.sh"
+alias isaacsim-python-sh="${ISAAC_PYTHON_SH}"
+alias isaacsim-pip="${ISAAC_PYTHON_SH} -m pip"
+alias isaacsim-ipython="${ISAAC_PYTHON_SH} ${ISAAC_SIM_DIR}/kit/python/bin/ipython"
+alias isaacsim-behave="${ISAAC_PYTHON_SH} ${ISAAC_SIM_DIR}/kit/python/bin/behave"
