@@ -59,11 +59,19 @@ RUN ${ISAAC_PYTHON_SH} -m pip install ./rdf-utils && \
 RUN $ISAAC_PYTHON_SH bdd-dsl/examples/generate_bdd_specs.py
 RUN mv bdd-dsl/examples/generated/*.feature bdd-isaacsim-exec/examples
 
+# Install Isaac sim webrtc client
+RUN wget https://download.isaacsim.omniverse.nvidia.com/isaacsim-webrtc-streaming-client-1.0.6-linux-x64.AppImage -O isaacsim-webrtc.AppImage && \
+    chmod +x isaacsim-webrtc.AppImage && \
+    ./isaacsim-webrtc.AppImage --appimage-extract && \
+    mv squashfs-root isaacsim-webrtc && \
+    rm isaacsim-webrtc.AppImage
+
 COPY nvidia_icd.json /etc/vulkan/icd.d
 
 # --- Copy notebooks --- #
 USER ${NB_USER}
-COPY --chown=${NB_USER}:users tutorials/isaac-sim.ipynb /home/${NB_USER}/work/tutorials/
+COPY --chown=${NB_USER}:users tutorials/isaac-sim.ipynb /home/${NB_USER}/behave-isaac-bdd
+COPY --chown=${NB_USER}:users tutorials/utils.py /home/${NB_USER}/behave-isaac-bdd
 
 # --- Entrypoint --- #
 COPY --chown=${NB_USER}:users entrypoint.sh /
