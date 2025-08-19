@@ -77,3 +77,10 @@ COPY --chown=${NB_USER}:users tutorials/utils.py /home/${NB_USER}/behave-isaac-b
 COPY --chown=${NB_USER}:users entrypoint.sh /
 ENTRYPOINT ["/entrypoint.sh"]
 CMD [ "start-notebook.sh" ]
+
+
+# test VirtualGL
+USER root
+RUN apt-get update && \
+    apt-get install -y virtualgl mesa-utils
+USER ${NB_USER}
