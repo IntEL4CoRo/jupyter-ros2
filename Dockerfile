@@ -85,5 +85,5 @@ RUN wget -q -O- https://packagecloud.io/dcommander/virtualgl/gpgkey | \
   gpg --dearmor >/etc/apt/trusted.gpg.d/VirtualGL.gpg
 RUN wget https://raw.githubusercontent.com/VirtualGL/repo/main/VirtualGL.list -O /etc/apt/sources.list.d/VirtualGL.list
 RUN apt-get update && \
-    apt-get install -y virtualgl mesa-utils
+    apt-get install -y virtualgl mesa-utils xvfb
 USER ${NB_USER}
