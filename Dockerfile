@@ -87,3 +87,5 @@ RUN wget https://raw.githubusercontent.com/VirtualGL/repo/main/VirtualGL.list -O
 RUN apt-get update && \
     apt-get install -y virtualgl mesa-utils xvfb
 USER ${NB_USER}
+RUN pip uninstall -y jupyter-remote-desktop-proxy && \
+    pip install git+https://github.com/yxzhan/jupyter-remote-desktop-proxy.git@main
