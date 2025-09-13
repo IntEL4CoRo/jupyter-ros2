@@ -137,6 +137,8 @@ RUN code-server --install-extension ms-python.python \
 RUN pip install git+https://github.com/yxzhan/jupyter-code-server.git
 ENV CODE_WORKING_DIRECTORY=${HOME}/work
 
+RUN pip install setuptools==68.1.2
+
 # --- Copy notebooks --- #
 USER ${NB_USER}
 WORKDIR ${HOME}/work
