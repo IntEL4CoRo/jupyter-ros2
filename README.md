@@ -104,8 +104,6 @@ ENTRYPOINT ["/entrypoint.sh"]
 - [ros-jazzy-desktop](https://docs.ros.org/en/jazzy/index.html): Desktop install of ROS2 jazzy with RViz, demos, tutorials.
 - [Jupyterlab](https://github.com/jupyterlab/jupyterlab): Web-based integrated development environment (IDE)
 - [VNC Remote Desktop](https://github.com/jupyterhub/jupyter-remote-desktop-proxy): Run XFCE (or other desktop environments) on Jupyter.
-- [Webots ROS2 Interface](https://github.com/cyberbotics/webots_ros2): Package that provides the necessary interfaces to simulate a robot in the [Webots](https://cyberbotics.com/) Open-source 3D robots simulator.
-- ~~[Gazebo Classic](http://classic.gazebosim.org/): Classic Robotic Simulator~~
 
 ## Development
 
@@ -159,46 +157,6 @@ xhost +local:docker && \
 docker compose up && \
 xhost -local:docker
 ```
-
-## Simulators
-
-[Webots](https://cyberbotics.com/) and [Gazebo](https://gazebosim.org/home) are two advanced robot simulators mentioned in the ROS2 tutorials.
-
-### Webots
-
-> Note: Webots is super graphically demanding simulator, better running it with GPU enabled.
-
-- Launch Multirobot Example:
-
-  ```base
-  ros2 launch webots_ros2_universal_robot multirobot_launch.py
-  ```
-
-- Type "Y" to install Webots on the first run.
-
-![screenshot-webots](./screenshots/screenshot-webots.png)
-
-See [Webots - ROS2 documenation](https://docs.ros.org/en/jazzy/Tutorials/Advanced/Simulators/Webots/Setting-Up-Simulation-Webots-Basic.html) for more details and github repo [cyberbotics/webots_ros2](https://github.com/cyberbotics/webots_ros2/wiki/Examples) for more examples.
-
-<!-- ### Gazebo classic
-
->Note: Gazebo classic no longer available on `ROS2 jazzy`.
-
-Copy Gazebo world demos to directory `gazebo_worlds_demo`
-
-```base
-cp -R /opt/ros/${ROS_DISTRO}/share/gazebo_plugins/worlds /home/${NB_USER}/gazebo_worlds_demo
-```
-
-Explaination of these demos can be found at the beginning of the `*.world` files.
-
-Open a new terminal under directory `gazebo_worlds_demo` and launch demos:
-
-```bash
-gazebo --verbose gazebo_ros_joint_pose_trajectory_demo.world
-```
-
-![screenshot-gazebo](./screenshots/screenshot-gazebo.png) -->
 
 ## Troubleshooting
 
