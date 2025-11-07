@@ -134,3 +134,9 @@ COPY --chown=${NB_USER}:users ./ ${HOME}/work
 COPY --chown=${NB_USER}:users entrypoint.sh /
 ENTRYPOINT ["/entrypoint.sh"]
 CMD [ "start-notebook.sh" ]
+
+# Apply a patch layer. 
+# For unknown reason, the "topic_based_ros2_control" package was removed from the rosdep. 
+USER root
+RUN apt install -y ros-jazzy-topic-based-ros2-control
+USER ${NB_USER}
